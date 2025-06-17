@@ -62,7 +62,7 @@ fn hand_type(mut ranks: Vec<i8>, mut colors: Vec<i8>) -> (i32, i32) {
         return (30, 3);
     }
     if sames == 2 {
-        if ranks[2] == ranks[3] || ranks[3] == ranks[4]{
+        if (ranks.len() >= 5 && ranks[2] == ranks[3]) || (ranks.len() >= 5 && ranks[3] == ranks[4]){
             return (20, 2);
         }
         return (10, 2);
