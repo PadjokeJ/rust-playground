@@ -5,3 +5,4 @@ edition = "2024"
 
 [dependencies]
 sdl2 = "*"
+term = "1.0.2"
