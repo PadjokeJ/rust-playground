@@ -1,5 +1,5 @@
 use clap::Parser;
-use std::time::{Instant};
+use std::time::Instant;
 
 #[derive(Parser)]
 struct Max {
@@ -7,12 +7,12 @@ struct Max {
 }
 
 fn eratosthene(max: usize) -> Vec<i8> {
-    let mut nums : Vec<i8> = vec![0; max];
+    let mut nums: Vec<i8> = vec![0; max];
 
     let start = Instant::now();
-    for i in 2..((max as f64).sqrt() as usize){
-        if nums[i] != -1{
-            for j in 2..(max/i){
+    for i in 2..((max as f64).sqrt() as usize) {
+        if nums[i] != -1 {
+            for j in 2..(max / i) {
                 nums[j * i] = -1;
             }
         }
@@ -21,7 +21,6 @@ fn eratosthene(max: usize) -> Vec<i8> {
     let t = start.elapsed();
     println!("program executed in {} seconds", t.as_secs_f32());
 
-     
     for i in 2..max {
         if nums[i] != -1 {
             print!("{}, ", i);
@@ -29,7 +28,7 @@ fn eratosthene(max: usize) -> Vec<i8> {
     }
 
     return nums;
-} 
+}
 
 fn main() {
     let args = Max::parse();
