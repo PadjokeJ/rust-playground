@@ -47,12 +47,9 @@ trait Move {
 
 trait Norm {
     fn norm(self) -> f32;
-}
-trait SquareNorm {
     fn sqr_norm(self) -> f32;
-}
-trait Normalize {
-    fn normalize(self) -> Self;
+    fn normalized(self) -> Self;
+    fn normalize(&mut self);
 }
 
 #[derive(Debug, Copy, Clone, PartialEq)]
@@ -115,14 +112,10 @@ impl Norm for V2 {
     fn norm(self) -> f32 {
         (self.x * self.x + self.y * self.y).sqrt()
     }
-}
-impl SquareNorm for V2 {
     fn sqr_norm(self) -> f32 {
         self.x * self.x + self.y * self.y
     }
-}
-impl Normalize for V2 {
-    fn normalize(self) -> Self {
+    fn normalized(self) -> Self {
         if self.norm() > 0.0 {
             Self {
                 x: self.x / self.norm(),
@@ -131,6 +124,11 @@ impl Normalize for V2 {
         } else {
             self
         }
+    }
+    fn normalize(&mut self) {
+        let vec = self.normalized();
+        self.x = vec.x;
+        self.y = vec.y;
     }
 }
 
@@ -263,7 +261,7 @@ fn main() -> Result<(), String> {
                 x: (rng.random::<i32>() % 11 - 5) as f32,
                 y: (rng.random::<i32>() % 11 - 5) as f32,
             }
-            .normalize();
+            .normalized();
 
             let mut radius: i32 = rng.random::<u32>() as i32;
             radius = radius % 20 + 20;
