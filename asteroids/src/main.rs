@@ -8,7 +8,7 @@ use sdl2::{keyboard::Keycode, render::Canvas};
 
 use std::ops::{Add, AddAssign, Mul, MulAssign, Sub, SubAssign};
 
-use rand::{Rng, random};
+use rand::Rng;
 
 extern crate sdl2;
 
@@ -21,9 +21,6 @@ struct Asteroid {
 impl Move for Asteroid {
     fn update_vel(&mut self, add: V2) {
         self.vel += add;
-    }
-    fn set_vel(&mut self, set: V2) {
-        self.vel = set;
     }
     fn update_pos(&mut self, delta: f32) {
         self.pos += self.vel * delta * self.speed;
@@ -39,16 +36,12 @@ impl Move for Player {
     fn update_vel(&mut self, add: V2) {
         self.vel += add;
     }
-    fn set_vel(&mut self, set: V2) {
-        self.vel = set;
-    }
     fn update_pos(&mut self, delta: f32) {
         self.pos += self.vel * delta * self.speed;
     }
 }
 trait Move {
     fn update_vel(&mut self, add: V2);
-    fn set_vel(&mut self, set: V2);
     fn update_pos(&mut self, delta: f32);
 }
 
