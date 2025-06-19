@@ -23,9 +23,9 @@ fn rank_to_char(rank: i8) -> char {
 }
 
 // return provided mult of hand
-fn hand_type(mut ranks: Vec<i8>, mut colors: Vec<i8>) -> (i32, i32) {
+fn hand_type(mut ranks: Vec<i8>, colors: Vec<i8>) -> (i32, i32) {
     let mut flush = true;
-    let mut col = colors[0];
+    let col = colors[0];
     for i in 0..5 {
         if col != colors[i] {
             flush = false;
@@ -35,7 +35,7 @@ fn hand_type(mut ranks: Vec<i8>, mut colors: Vec<i8>) -> (i32, i32) {
 
     ranks.sort();
     let mut sames = 0;
-    let mut ori = ranks[0];
+    let ori = ranks[0];
     for i in 0..ranks.len() {
         if ori != ranks[i] {
             sames = i;
@@ -70,9 +70,9 @@ fn hand_type(mut ranks: Vec<i8>, mut colors: Vec<i8>) -> (i32, i32) {
     
     ranks.reverse();
     let mut grad = 0;
-    let mut prev = ranks[0];
+    let prev = ranks[0];
     for i in 0..5 {
-        if prev + 1 != ranks[i] {
+        if prev + i as i8 != ranks[i] {
             grad = i;
             break;
         }
@@ -99,14 +99,13 @@ fn main() {
     let input = Term::buffered_stdout();
     let mut rng = rand::rng();
 
-    const ESC : char = 27u8 as char;
     const ENT : char = 10u8 as char;
 
     let mut cursor_pos = 0;
     let mut click = false;
     let mut submit = false;
 
-    let mut hand_size = 8;
+    let hand_size = 8;
 
     let mut hand: Vec<Card> = Vec::new();
     let mut deck: Vec<Card> = Vec::new();
@@ -142,9 +141,8 @@ fn main() {
             }
         }
 
-        if cursor_pos < 0 {
-            cursor_pos = 0;
-        }
+        cursor_pos = max(cursor_pos, 0);
+
         if click {
             click = false;
 
@@ -186,7 +184,7 @@ fn main() {
             let chips_and_mult = hand_type(rank_vec, color_vec);
 
             let mut chips = chips_and_mult.0;
-            let mut mult = chips_and_mult.1;
+            let mult = chips_and_mult.1;
 
             for i in &play {
                 chips += i.points;
@@ -219,7 +217,7 @@ fn main() {
             }
         }
         println!();
-        for x in 0..cursor_pos {
+        for _ in 0..cursor_pos {
             print!("   ");
         }
         println!("^");
