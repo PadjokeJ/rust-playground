@@ -6,12 +6,14 @@ use sdl2::rect::Point;
 use sdl2::video::Window;
 use sdl2::{keyboard::Keycode, render::Canvas};
 
+use std::cmp::min;
 use std::ops::{Add, AddAssign, Mul, MulAssign, Sub, SubAssign};
 
 use rand::Rng;
 
 extern crate sdl2;
 
+#[derive(Clone, Copy)]
 struct Asteroid {
     pos: V2,
     vel: V2,
@@ -19,8 +21,8 @@ struct Asteroid {
     speed: f32,
 }
 impl Move for Asteroid {
-    fn update_vel(&mut self, add: V2) {
-        self.vel += add;
+    fn update_vel(&mut self, add: V2, delta: f32) {
+        self.vel += add * delta;
     }
     fn update_pos(&mut self, delta: f32) {
         self.pos += self.vel * delta * self.speed;
@@ -33,15 +35,15 @@ struct Player {
     radius: f32,
 }
 impl Move for Player {
-    fn update_vel(&mut self, add: V2) {
-        self.vel += add;
+    fn update_vel(&mut self, add: V2, delta: f32) {
+        self.vel += add * delta;
     }
     fn update_pos(&mut self, delta: f32) {
         self.pos += self.vel * delta * self.speed;
     }
 }
 trait Move {
-    fn update_vel(&mut self, add: V2);
+    fn update_vel(&mut self, add: V2, delta: f32);
     fn update_pos(&mut self, delta: f32);
 }
 
@@ -171,7 +173,7 @@ fn main() -> Result<(), String> {
     let sdl_context = sdl2::init()?;
     let video_subsystem = sdl_context.video()?;
     let window = video_subsystem
-        .window("Hello World", res.0, res.1)
+        .window("Asteroids", res.0, res.1)
         .build()
         .unwrap();
 
@@ -192,13 +194,19 @@ fn main() -> Result<(), String> {
             y: (res.1 as i32 / 2) as f32,
         },
         vel: V2 { x: 0.0, y: 0.0 },
-        speed: 0.4f32,
+        speed: 24f32,
         radius: 5.0,
     };
 
+    let mut shooting: bool = false;
+    let mut bullets: Vec<V2> = Vec::new();
+    let mut bullets_rot: Vec<V2> = Vec::new();
+    let bullet_delay = Duration::from_secs_f32(0.1);
+    let mut time_since_last_bullet = Duration::from_secs(0);
+
     let mut asteroids: Vec<Asteroid> = Vec::new();
 
-    let spawn_delay = Duration::from_secs(2);
+    let spawn_delay = Duration::from_secs_f32(0.5);
     let mut time_since_last_spawn = Duration::from_secs(0);
 
     'main: loop {
@@ -226,6 +234,10 @@ fn main() -> Result<(), String> {
                     keycode: Some(Keycode::D),
                     ..
                 } => input_vec.3 = true,
+                Event::KeyDown {
+                    keycode: Some(Keycode::SPACE),
+                    ..
+                } => shooting = true,
                 Event::KeyUp {
                     keycode: Some(Keycode::W),
                     ..
@@ -242,10 +254,11 @@ fn main() -> Result<(), String> {
                     keycode: Some(Keycode::D),
                     ..
                 } => input_vec.3 = false,
-                Event::KeyDown {
+                Event::KeyUp {
                     keycode: Some(Keycode::SPACE),
                     ..
-                } => println!("fps: {}", 1.0 / delta_time),
+                } => shooting = false,
+
                 _ => (),
             }
         }
@@ -298,17 +311,74 @@ fn main() -> Result<(), String> {
             }
 
             if (player.pos - ast.pos).norm() < player.radius + ast.radius as f32 {
-                panic!("game end");
+                loop {
+                    for event in event_pump.poll_iter() {
+                        match event {
+                            Event::Quit { .. }
+                            | Event::KeyDown {
+                                keycode: Some(Keycode::Escape),
+                                ..
+                            } => break 'main,
+                            _ => (),
+                        }
+                    }
+                }
             }
         }
 
         let mov_vec = V2 {
             x: (input_vec.3 as i32 - input_vec.1 as i32) as f32,
             y: (input_vec.2 as i32 - input_vec.0 as i32) as f32,
-        };
+        }
+        .normalized();
 
-        player.update_vel(mov_vec * player.speed - player.vel * delta_time);
+        player.update_vel(mov_vec * player.speed - player.vel * 0.1, delta_time);
         player.update_pos(delta_time);
+
+        time_since_last_bullet += Duration::from_secs_f32(delta_time);
+        time_since_last_bullet = min(time_since_last_bullet, bullet_delay);
+        if shooting && time_since_last_bullet >= bullet_delay && mov_vec.sqr_norm() > 0.0 {
+            time_since_last_bullet -= bullet_delay;
+
+            bullets.push(V2 {
+                x: player.pos.x,
+                y: player.pos.y,
+            });
+            bullets_rot.push(mov_vec);
+        }
+
+        let mut i = 0;
+        for _ in 0..bullets.len() {
+            bullets[i].x += bullets_rot[i].x * delta_time * 750f32;
+            bullets[i].y += bullets_rot[i].y * delta_time * 750f32;
+
+            let a = asteroids.clone();
+            let mut j = 0;
+            let mut removed = false;
+            for ast in a {
+                if (ast.pos - bullets[i]).norm() < ast.radius as f32 + 5.0 {
+                    asteroids.remove(j);
+                    bullets.remove(i);
+                    bullets_rot.remove(i);
+                    removed = true;
+                    break;
+                } else {
+                    j += 1;
+                }
+            }
+
+            if !removed {
+                if bullets.len() > 0
+                    && (bullets[i].x - (res.0 / 2) as i32 as f32).abs() > (res.0 / 2) as i32 as f32
+                    || (bullets[i].y - (res.1 / 2) as i32 as f32).abs() > (res.1 / 2) as i32 as f32
+                {
+                    bullets.remove(i);
+                    bullets_rot.remove(i);
+                } else {
+                    i += 1;
+                }
+            }
+        }
 
         if player.pos.x < -player.radius {
             player.pos.x = player.radius + res.0 as i32 as f32;
@@ -327,11 +397,26 @@ fn main() -> Result<(), String> {
         canvas.clear();
 
         canvas.set_draw_color(Color::RGB(200, 200, 200));
-        draw_circle(&mut canvas, player.pos.x as i32, player.pos.y as i32, player.radius as i32);
+        draw_circle(
+            &mut canvas,
+            player.pos.x as i32,
+            player.pos.y as i32,
+            player.radius as i32,
+        );
 
         canvas.set_draw_color(Color::RGB(150, 0, 50));
         for ast in &asteroids {
             draw_circle(&mut canvas, ast.pos.x as i32, ast.pos.y as i32, ast.radius);
+        }
+
+        canvas.set_draw_color(Color::RGB(0, 150, 50));
+        for i in 0..bullets.len() {
+            let b = bullets[i];
+            for j in 0..10 {
+                let br = bullets_rot[i] * 2.0 * j as f32 + b;
+
+                draw_circle(&mut canvas, br.x as i32, br.y as i32, 2);
+            }
         }
 
         canvas.present();
