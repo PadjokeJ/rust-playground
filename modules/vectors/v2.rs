@@ -7,6 +7,26 @@ struct V2 {
     x: f32,
     y: f32,
 }
+impl V2 {
+    fn new(x: f32, y: f32) -> V2 {
+        V2 {x: x, y: y}
+    }
+    fn zero() -> V2 {
+        V2::new(0.0, 0.0)
+    }
+    fn up() -> V2 {
+        V2::new(0.0, -1.0)
+    }
+    fn down() -> V2 {
+        V2::new(0.0, 1.0)
+    }
+    fn left() -> V2 {
+        V2::new(-1.0, 0.0)
+    }
+    fn right() -> V2 {
+        V2::new(1.0, 1.0)
+    }
+}
 
 impl Add for V2 {
     type Output = Self;
