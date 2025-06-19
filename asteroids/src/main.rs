@@ -59,6 +59,26 @@ struct V2 {
     x: f32,
     y: f32,
 }
+impl V2 {
+    fn new(x: f32, y: f32) -> V2 {
+        V2 {x: x, y: y}
+    }
+    fn zero() -> V2 {
+        V2::new(0.0, 0.0)
+    }
+    fn up() -> V2 {
+        V2::new(0.0, -1.0)
+    }
+    fn down() -> V2 {
+        V2::new(0.0, 1.0)
+    }
+    fn left() -> V2 {
+        V2::new(-1.0, 0.0)
+    }
+    fn right() -> V2 {
+        V2::new(1.0, 1.0)
+    }
+}
 impl Add for V2 {
     type Output = Self;
     fn add(self, other: Self) -> Self {
@@ -189,11 +209,8 @@ fn main() -> Result<(), String> {
     let mut delta_time: f32 = 0f32;
 
     let mut player: Player = Player {
-        pos: V2 {
-            x: (res.0 as i32 / 2) as f32,
-            y: (res.1 as i32 / 2) as f32,
-        },
-        vel: V2 { x: 0.0, y: 0.0 },
+        pos: V2::new((res.0 as i32 / 2) as f32, (res.1 as i32 / 2) as f32),
+        vel: V2::zero(),
         speed: 24f32,
         radius: 5.0,
     };
@@ -266,14 +283,8 @@ fn main() -> Result<(), String> {
         if time_since_last_spawn > spawn_delay {
             time_since_last_spawn -= spawn_delay;
 
-            let pos: V2 = V2 {
-                x: (rng.random::<i32>() % 2) as f32 * (res.0 as i32 as f32),
-                y: (rng.random::<i32>() % 2) as f32 * (res.0 as i32 as f32),
-            };
-            let vel: V2 = V2 {
-                x: (rng.random::<i32>() % 11 - 5) as f32,
-                y: (rng.random::<i32>() % 11 - 5) as f32,
-            }
+            let pos: V2 = V2::new((rng.random::<i32>() % 2) as f32 * (res.0 as i32 as f32), (rng.random::<i32>() % 2) as f32 * (res.0 as i32 as f32));
+            let vel: V2 = V2::new((rng.random::<i32>() % 11 - 5) as f32, (rng.random::<i32>() % 11 - 5) as f32)
             .normalized();
 
             let mut radius: i32 = rng.random::<u32>() as i32;
@@ -340,11 +351,8 @@ fn main() -> Result<(), String> {
         if shooting && time_since_last_bullet >= bullet_delay && mov_vec.sqr_norm() > 0.0 {
             time_since_last_bullet -= bullet_delay;
 
-            bullets.push(V2 {
-                x: player.pos.x,
-                y: player.pos.y,
-            });
-            bullets_rot.push(mov_vec);
+            bullets.push(player.pos.clone());
+            bullets_rot.push(mov_vec.clone());
         }
 
         let mut i = 0;
