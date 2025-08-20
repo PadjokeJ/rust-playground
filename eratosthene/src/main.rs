@@ -10,10 +10,10 @@ fn eratosthene(max: usize) -> Vec<i8> {
     let mut nums: Vec<i8> = vec![0; max];
 
     let start = Instant::now();
-    for i in 2..((max as f64).sqrt() as usize) {
+    for i in 2..=((max as f64).sqrt() as usize) {
         if nums[i] != -1 {
-            for j in 2..(max / i) {
-                nums[j * i] = -1;
+            for j in (i * i..max).step_by(i) {
+                nums[j] = -1;
             }
         }
     }
