@@ -1,0 +1,31 @@
+7K/7P/1pp5/8/8/8/8/8    H -> 7P
+6KP/7P/8/8/8/8/8/8      print register 7P
+
+7K/6P1/Prp5/8/8/8/8/8   e -> 6P1
+6KP/6P1/8/8/8/8/8/8     print register 6P1
+
+7K/6PP/rPp5/8/8/8/8/8   l -> 6PP
+6KP/6PP/8/8/8/8/8/8     print register 6PP
+6KP/6PP/8/8/8/8/8/8     print register 6PP
+
+7K/5P1P/NPp5/8/8/8/8/8  o -> 5P1P
+6KP/5P1P/8/8/8/8/8/8    print register 5P1P
+
+7K/5PP1/1r6/8/8/8/8/8     -> 5PP1
+6KP/5PP1/8/8/8/8/8/8    print register 5PP1
+
+7K/5PPP/Nbp5/8/8/8/8/8  W -> 5PPP
+6KP/5PPP/8/8/8/8/8/8    print register 5PPP
+
+6KP/5P1P/8/8/8/8/8/8    print register 5P1P
+
+7K/1P6/bBp5/8/8/8/8/8   r -> 1P6
+6KP/1P6/8/8/8/8/8/8     print register 1P6
+
+6KP/6PP/8/8/8/8/8/8     print register 6PP
+
+7K/4P3/rrp5/8/8/8/8/8   d -> 4P3
+6KP/4P3/8/8/8/8/8/8     print register 4P3
+
+7K/5PN1/pr6/8/8/8/8/8   ! -> 5PN1
+6KP/5PN1/8/8/8/8/8/8    print register 5PN1
